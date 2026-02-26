@@ -159,7 +159,6 @@ SOURCE_DIR = Path(".")
 OUT_DIR = Path("dotnet_out")
 OUT_DIR.mkdir(exist_ok=True)
 
-# 🔥 CHANGE: scan Ruby files
 EXTENSIONS = [".rb"]
 
 # ================================
@@ -169,7 +168,7 @@ def clean_text(s):
     return "".join(c for c in s if c == "\n" or (32 <= ord(c) <= 126))
 
 # ================================
-# REMOVE ``` MARKDOWN FROM GROQ
+# REMOVE MARKDOWN ```
 # ================================
 def clean_csharp_output(text):
     text = text.replace("```csharp", "")
@@ -193,25 +192,25 @@ def groq_call(prompt):
     return r.json()["choices"][0]["message"]["content"]
 
 # ================================
-# ✅ RUBY → CONSOLE C# CONVERSION
+# ✅ RUBY → SAFE CONSOLE C#
 # ================================
 def convert_ruby(code):
     prompt = f"""
-You are converting Ruby code into C# CONSOLE APPLICATION code.
+You are converting Ruby code into STRICTLY VALID C# CONSOLE APPLICATION code.
 
-TARGET PLATFORM:
+VERY IMPORTANT RULES (MUST FOLLOW):
+- ALWAYS use double for numeric variables.
+- NEVER use float.
+- Use Convert.ToDouble(Console.ReadLine()) for numeric input.
+- Output MUST compile without errors.
+- Do NOT include ``` markdown.
+- Do NOT include explanations.
+- Output ONLY C# code.
+
+TARGET:
 - .NET Console
 - Linux compatible
 - OnlineGDB compatible
-
-ABSOLUTE RULES:
-- Output ONLY console-based C#
-- Use Console.ReadLine() and Console.WriteLine()
-- DO NOT use System.Windows.Forms
-- DO NOT use Microsoft.VisualBasic
-- DO NOT use MessageBox
-- DO NOT use InputBox
-- DO NOT invent GUI logic
 
 MAPPING RULES:
 - puts → Console.WriteLine()
@@ -223,12 +222,10 @@ MAPPING RULES:
 - elsif → else if
 
 GENERAL:
-- Preserve logic exactly
-- Line-by-line conversion
+- Preserve logic
 - Strong typing required
-- No markdown
-- No explanations
-- Output ONLY valid C# code
+- Add using System;
+- Wrap code inside class Program with static void Main()
 
 RUBY CODE:
 {code}
@@ -249,7 +246,7 @@ for f in files:
 
     ruby_code = clean_text(f.read_text(errors="ignore"))
 
-    # 🔥 convert ruby → C#
+    # 🔥 SAFE conversion
     cs = clean_csharp_output(convert_ruby(ruby_code))
 
     out_file = OUT_DIR / (f.stem + ".cs")
