@@ -1,0 +1,15 @@
+{
+  "migration_id": "17",
+  "detected_language": ".sample",
+  "file_count": 22,
+  "extensions": {
+    "": 2,
+    ".rb": 1,
+    ".yml": 1,
+    ".pack": 1,
+    ".rev": 1,
+    ".idx": 1,
+    ".sample": 14,
+    ".py": 1
+  }
+}
